@@ -10,19 +10,32 @@ import (
 
 	"github.com/Goodmain/cch/internal/config"
 	cexec "github.com/Goodmain/cch/internal/exec"
+	"github.com/Goodmain/cch/internal/help"
 	"github.com/Goodmain/cch/internal/ui"
 )
 
 func main() {
 	args := os.Args[1:]
-	if len(args) > 0 && args[0] == "init" {
-		if err := runInit(); err != nil {
+	if len(args) == 0 {
+		if err := runInteractive(); err != nil {
 			fail(err)
 		}
 		return
 	}
-	if err := runInteractive(); err != nil {
-		fail(err)
+
+	switch args[0] {
+	case "init":
+		if err := runInit(); err != nil {
+			fail(err)
+		}
+	case "help", "-h", "--help":
+		fmt.Print(help.Help())
+	case "schema":
+		fmt.Print(help.Schema())
+	default:
+		fmt.Fprintf(os.Stderr, "cch: unknown command %q\n\n", args[0])
+		fmt.Fprint(os.Stderr, help.Help())
+		os.Exit(1)
 	}
 }
 
