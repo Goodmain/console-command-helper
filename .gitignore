@@ -1,0 +1,10 @@
+.claude/
+opencode/
+openspec
+bin/
+
+# build / release output
+/cch
+dist/
+coverage.out
+coverage.txt

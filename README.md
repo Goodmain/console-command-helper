@@ -1,25 +1,30 @@
 # cch — console command helper
 
+[![Tests](https://github.com/Goodmain/console-command-helper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Goodmain/console-command-helper/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/Goodmain/console-command-helper/graph/badge.svg)](https://codecov.io/gh/Goodmain/console-command-helper)
+[![Release](https://img.shields.io/github/v/release/Goodmain/console-command-helper)](https://github.com/Goodmain/console-command-helper/releases)
+
 `cch` is an interactive helper for project console commands. Define your commands once in a `.cch.json` file, then pick, fill, confirm, and run them from a searchable picker — no need to remember exact flags or argument order.
 
 ## Why
 
 Projects accumulate commands you run rarely and forget: migrations, seeders, deploy scripts, one-off maintenance tasks. `cch` keeps them documented and runnable in one place. Each command declares its required arguments and optional flags, so the picker walks you through filling them and shows the final line before it runs.
 
-## Install
+## Installation
 
-Requires Go 1.25+.
+### Homebrew
 
-```sh
-go install github.com/Goodmain/cch@latest
+```bash
+brew tap Goodmain/cch
+brew install cch
 ```
 
-Or build from source:
+### Build from source
 
-```sh
-git clone https://github.com/Goodmain/cch.git
-cd cch
-go build -o cch .
+- Go 1.25+
+
+```bash
+go build .
 ```
 
 ## Usage
@@ -28,6 +33,7 @@ go build -o cch .
 cch            pick and run a command (interactive)
 cch init       create a starter ./.cch.json in the current folder
 cch schema     print the config spec (paste into an AI to fill the config)
+cch version    print version information (aliases: -v, --version)
 cch help       show help (aliases: -h, --help)
 ```
 
@@ -127,6 +133,43 @@ internal/help/       help text and AI-facing config spec
 internal/ui/         interactive picker and prompts (promptui)
 ```
 
+## Development
+
+Run the unit test suite with coverage:
+
+```sh
+go test -covermode=atomic -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out
+```
+
+Run the end-to-end smoke test (gated behind the `integration` build tag):
+
+```sh
+go test ./test/smoke -tags=integration -v
+```
+
+CI runs tests, coverage, `golangci-lint`, and a cross-platform build matrix
+(Linux/macOS/Windows) on every push and PR to `main` — see
+[.github/workflows/ci.yml](.github/workflows/ci.yml).
+
+## Releases
+
+Releases are automated with [GoReleaser](https://goreleaser.com). Pushing a
+`v*` tag triggers [.github/workflows/release.yml](.github/workflows/release.yml),
+which builds cross-platform binaries, publishes a GitHub Release with archives
+and checksums, and updates the Homebrew tap.
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Required repository secrets:
+
+- `HOMEBREW_TAP_GITHUB_TOKEN` — token with write access to the
+  `Goodmain/homebrew-cch` tap repo (for the Homebrew formula update).
+- `CODECOV_TOKEN` — optional, for coverage uploads in CI.
+
 ## License
 
-See repository for license details.
+[MIT](LICENSE)

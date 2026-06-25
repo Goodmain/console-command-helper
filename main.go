@@ -14,6 +14,13 @@ import (
 	"github.com/Goodmain/cch/internal/ui"
 )
 
+// Build information, injected at release time via -ldflags by GoReleaser.
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -28,6 +35,8 @@ func main() {
 		if err := runInit(); err != nil {
 			fail(err)
 		}
+	case "version", "-v", "--version":
+		fmt.Println(versionString())
 	case "help", "-h", "--help":
 		fmt.Print(help.Help())
 	case "schema":
@@ -101,6 +110,10 @@ func runInteractive() error {
 		return fmt.Errorf("command failed: %w", err)
 	}
 	return nil
+}
+
+func versionString() string {
+	return fmt.Sprintf("cch %s (commit %s, built %s)", version, commit, date)
 }
 
 func fail(err error) {

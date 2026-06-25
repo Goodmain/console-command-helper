@@ -13,6 +13,7 @@ Usage:
   cch            pick and run a command (interactive)
   cch init       create a starter ./.cch.json in the current folder
   cch schema     print the config spec (paste into an AI to fill the config)
+  cch version    print version information (aliases: -v, --version)
   cch help       show this help (aliases: -h, --help)
 
 Config files:
