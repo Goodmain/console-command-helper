@@ -66,7 +66,7 @@ brews:
   - name: cch
     repository:
       owner: Goodmain
-      name: homebrew-cch
+      name: homebrew-console-command-helper
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:

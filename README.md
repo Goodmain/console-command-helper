@@ -15,7 +15,7 @@ Projects accumulate commands you run rarely and forget: migrations, seeders, dep
 ### Homebrew
 
 ```bash
-brew tap Goodmain/cch
+brew tap Goodmain/console-command-helper
 brew install cch
 ```
 
@@ -167,7 +167,7 @@ git push origin v0.1.0
 Required repository secrets:
 
 - `HOMEBREW_TAP_GITHUB_TOKEN` — token with write access to the
-  `Goodmain/homebrew-cch` tap repo (for the Homebrew formula update).
+  `Goodmain/homebrew-console-command-helper` tap repo (for the Homebrew formula update).
 - `CODECOV_TOKEN` — optional, for coverage uploads in CI.
 
 ## License
