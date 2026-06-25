@@ -5,6 +5,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 
@@ -22,50 +23,59 @@ var (
 )
 
 func main() {
-	args := os.Args[1:]
+	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+}
+
+// run dispatches a single invocation and returns the process exit code. It is
+// the testable core of main: all output goes to the provided writers and it
+// never calls os.Exit itself.
+func run(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		if err := runInteractive(); err != nil {
-			fail(err)
+			fmt.Fprintln(stderr, "cch: "+err.Error())
+			return 1
 		}
-		return
+		return 0
 	}
 
 	switch args[0] {
 	case "init":
-		if err := runInit(); err != nil {
-			fail(err)
+		if err := runInit(stdout); err != nil {
+			fmt.Fprintln(stderr, "cch: "+err.Error())
+			return 1
 		}
 	case "version", "-v", "--version":
-		fmt.Println(versionString())
+		fmt.Fprintln(stdout, versionString())
 	case "help", "-h", "--help":
-		fmt.Print(help.Help())
+		fmt.Fprint(stdout, help.Help())
 	case "schema":
-		fmt.Print(help.Schema())
+		fmt.Fprint(stdout, help.Schema())
 	default:
-		fmt.Fprintf(os.Stderr, "cch: unknown command %q\n\n", args[0])
-		fmt.Fprint(os.Stderr, help.Help())
-		os.Exit(1)
+		fmt.Fprintf(stderr, "cch: unknown command %q\n\n", args[0])
+		fmt.Fprint(stderr, help.Help())
+		return 1
 	}
+	return 0
 }
 
-func runInit() error {
+func runInit(stdout io.Writer) error {
 	res, err := config.Init(false)
 	if err != nil {
 		return err
 	}
 	if res.Exists {
-		fmt.Printf("%s already exists. Overwrite? [y/N]: ", res.Path)
+		fmt.Fprintf(stdout, "%s already exists. Overwrite? [y/N]: ", res.Path)
 		var ans string
-		fmt.Scanln(&ans)
+		_, _ = fmt.Scanln(&ans)
 		if ans != "y" && ans != "Y" {
-			fmt.Println("Left existing config untouched.")
+			fmt.Fprintln(stdout, "Left existing config untouched.")
 			return nil
 		}
 		if _, err := config.Init(true); err != nil {
 			return err
 		}
 	}
-	fmt.Printf("Wrote %s\n", res.Path)
+	fmt.Fprintf(stdout, "Wrote %s\n", res.Path)
 	return nil
 }
 
@@ -114,9 +124,4 @@ func runInteractive() error {
 
 func versionString() string {
 	return fmt.Sprintf("cch %s (commit %s, built %s)", version, commit, date)
-}
-
-func fail(err error) {
-	fmt.Fprintln(os.Stderr, "cch: "+err.Error())
-	os.Exit(1)
 }
