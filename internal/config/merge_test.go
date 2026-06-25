@@ -5,9 +5,17 @@ import (
 	"testing"
 )
 
+// setHome points os.UserHomeDir at dir on every platform: Unix reads $HOME,
+// Windows reads %USERPROFILE%.
+func setHome(t *testing.T, dir string) {
+	t.Helper()
+	t.Setenv("HOME", dir)
+	t.Setenv("USERPROFILE", dir)
+}
+
 func TestGlobalPath(t *testing.T) {
 	home := t.TempDir()
-	t.Setenv("HOME", home)
+	setHome(t, home)
 
 	got, err := GlobalPath()
 	if err != nil {
@@ -21,7 +29,7 @@ func TestGlobalPath(t *testing.T) {
 func TestLoadMergedLocalOverridesGlobalAndSorts(t *testing.T) {
 	home := t.TempDir()
 	work := t.TempDir()
-	t.Setenv("HOME", home)
+	setHome(t, home)
 	chdir(t, work)
 
 	// Global: two commands.
@@ -66,7 +74,7 @@ func TestLoadMergedLocalOverridesGlobalAndSorts(t *testing.T) {
 }
 
 func TestLoadMergedEmptyWhenNoConfigs(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
+	setHome(t, t.TempDir())
 	chdir(t, t.TempDir())
 
 	cmds, err := LoadMerged()
@@ -79,7 +87,7 @@ func TestLoadMergedEmptyWhenNoConfigs(t *testing.T) {
 }
 
 func TestLoadMergedReportsMalformedLocal(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
+	setHome(t, t.TempDir())
 	work := t.TempDir()
 	chdir(t, work)
 	writeFile(t, filepath.Join(work, FileName), `{ not json`)
